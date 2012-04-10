@@ -47,7 +47,7 @@ var Math5 = {
 
       var canvas = document.createElement('canvas');
       canvas.width = tree.length * this.fontSize;
-      canvas.height = 50;
+      canvas.height = tree.height * this.lineHeight;
 
       var c = canvas.getContext('2d');
       this.c = c;
@@ -66,7 +66,7 @@ var Math5 = {
    },
 
 
-   drawTree: function (tree) {
+   drawTree: function (tree, y) {
       var tmp = tree;
       if (tmp.hasOwnProperty('Assignment')) {
          this.drawTree(tmp.Assignment.name);
@@ -75,6 +75,7 @@ var Math5 = {
          this.drawTree(tmp.Assignment.value);
       } else if (tmp.hasOwnProperty('Binary')) {
          var t = this.px;
+         var ty = this.py;
          this.drawTree(tmp.Binary.left);
          if (tmp.Binary.operator == '/') {
             this.c.moveTo(t, this.py + this.lineHeight);
@@ -86,7 +87,7 @@ var Math5 = {
             this.c.fillText(tmp.Binary.operator, this.px, this.py);
             this.px += this.fontSize;
          }
-         this.drawTree(tmp.Binary.right);
+         this.drawTree(tmp.Binary.right, t);
       } else if (tmp.hasOwnProperty('Unary')) {
          this.c.fillText(tmp.Unary.operator, this.px, this.py);
          this.px += this.fontSize;
@@ -149,7 +150,7 @@ var Math5 = {
          if (token == '=') {
             this.lexer.next();
             right = this.parseAssignment();
-            return { Assignment: { name: expr, value: right }, length: expr.length + right.length + 1 };
+            return { Assignment: { name: expr, value: right }, length: expr.length + right.length + 1, height: Math.max(expr.height, right.height) };
          }
       }
       return expr;
@@ -163,7 +164,7 @@ var Math5 = {
          token = this.lexer.next();
          right = this.parseAdditive();
          console.log(left, left.length, right, right.length);
-         return { Binary: { operator: token, left: left, right: right }, length: left.length + right.length + 1 };
+         return { Binary: { operator: token, left: left, right: right }, length: left.length + right.length + 1, height: Math.max(left.height, right.height) };
       }
       return left;
    },
@@ -176,7 +177,15 @@ var Math5 = {
       if (token == '*' || token == '/') {
          token = this.lexer.next();
          right = this.parseMultiplicative();
-         return { Binary: { operator: token, left: left, right: right }, length: left.length + right.length + 1 };
+         var length, height;
+         if (token == '*') {
+            length = left.length + right.length + 1;
+            height = Math.max(left.height, right.height);
+         } else {
+            length = Math.max(left.length + 1, right.length + 1);
+            height = Math.max(left.height, right.height) + 1;
+         }
+         return { Binary: { operator: token, left: left, right: right }, length: length, height: height };
       }
       return left;
    },
@@ -188,7 +197,7 @@ var Math5 = {
       if (token == '-' || token == '+') {
          token = this.lexer.next();
          expr = this.parseUnary();
-         return { Unary: { operator: token, expression: expr }, length: expr.length + 1 };
+         return { Unary: { operator: token, expression: expr }, length: expr.length + 1, height: expr.height };
       }
       return this.parsePrimary();
    },
@@ -199,16 +208,16 @@ var Math5 = {
       token = this.lexer.peek();
       if (!isNaN(parseInt(token))) {
          this.lexer.next();
-         return { Number: token, length: token.length };
+         return { Number: token, length: token.length, height: 1 };
       } else if (typeof token == 'string') {
          this.lexer.next();
          if (token == '(') {
             expr = this.parseAssignment();
             token = this.lexer.next();
             if (token != ')') { console.log('ERROR'); }
-            return { Expression: expr, length: expr.length + 2 };
+            return { Expression: expr, length: expr.length + 2, height: expr.height };
          }
-         return { Identifier: token, length: token.length };
+         return { Identifier: token, length: token.length, height: 1 };
       }
       return { Weird: token };
    },
