@@ -56,7 +56,7 @@ var Math5 = {
       c.textAlign = 'left';
       c.font = this.fontSize + 'px courier new';
 
-      this.drawTree(tree);
+      this.drawTree(tree, 0);
 
       c.strokeRect(0, 0, canvas.width, canvas.height);
       c.restore();
@@ -69,40 +69,41 @@ var Math5 = {
    drawTree: function (tree, y) {
       var tmp = tree;
       if (tmp.hasOwnProperty('Assignment')) {
-         this.drawTree(tmp.Assignment.name);
-         this.c.fillText('=', this.px, this.py);
+         this.drawTree(tmp.Assignment.name, y);
+         this.c.fillText('=', this.px, y);
          this.px += this.fontSize;
-         this.drawTree(tmp.Assignment.value);
+         this.drawTree(tmp.Assignment.value, y);
       } else if (tmp.hasOwnProperty('Binary')) {
          var t = this.px;
-         var ty = this.py;
-         this.drawTree(tmp.Binary.left);
+         this.drawTree(tmp.Binary.left, y);
          if (tmp.Binary.operator == '/') {
-            this.c.moveTo(t, this.py + this.lineHeight);
-            this.c.lineTo(Math.max(tmp.Binary.left.length*this.fontSize, tmp.Binary.right.length*this.fontSize) + t, this.py + this.lineHeight);
+            this.c.moveTo(t, y + this.lineHeight);
+            var w = Math.max(tmp.Binary.left.length*this.fontSize, tmp.Binary.right.length*this.fontSize) + t;
+            console.log(w, t);
+            this.c.lineTo(w, y + this.lineHeight);
             this.c.stroke();
             this.px = t;
-            this.py += this.lineHeight;
+           y += this.lineHeight;
          } else {
-            this.c.fillText(tmp.Binary.operator, this.px, this.py);
+            this.c.fillText(tmp.Binary.operator, this.px, y);
             this.px += this.fontSize;
          }
-         this.drawTree(tmp.Binary.right, t);
+         this.drawTree(tmp.Binary.right, y);
       } else if (tmp.hasOwnProperty('Unary')) {
-         this.c.fillText(tmp.Unary.operator, this.px, this.py);
+         this.c.fillText(tmp.Unary.operator, this.px, y);
          this.px += this.fontSize;
-         this.drawTree(tmp.Unary.expression);
+         this.drawTree(tmp.Unary.expression, y);
       } else if (tmp.hasOwnProperty('Number')) {
-         this.c.fillText(tmp.Number, this.px, this.py);
+         this.c.fillText(tmp.Number, this.px, y);
          this.px += this.fontSize;
       } else if (tmp.hasOwnProperty('Identifier')) {
-         this.c.fillText(tmp.Identifier, this.px, this.py);
+         this.c.fillText(tmp.Identifier, this.px, y);
          this.px += this.fontSize;
       } else if (tmp.hasOwnProperty('Expression')) {
-         this.c.fillText('(', this.px, this.py);
+         this.c.fillText('(', this.px, y);
          this.px += this.fontSize;
-         this.drawTree(tmp.Expression);
-         this.c.fillText(')', this.px, this.py);
+         this.drawTree(tmp.Expression, y);
+         this.c.fillText(')', this.px, y);
          this.px += this.fontSize;
       } else {
          console.log('ERR', tmp);
@@ -182,7 +183,7 @@ var Math5 = {
             length = left.length + right.length + 1;
             height = Math.max(left.height, right.height);
          } else {
-            length = Math.max(left.length + 1, right.length + 1);
+            length = Math.max(left.length, right.length);
             height = Math.max(left.height, right.height) + 1;
          }
          return { Binary: { operator: token, left: left, right: right }, length: length, height: height };
