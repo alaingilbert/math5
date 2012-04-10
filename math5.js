@@ -73,25 +73,40 @@ var Math5 = {
       if (tmp.hasOwnProperty('Assignment')) {
          var yy = y;
          if (tmp.Assignment.name.height == 1) {
-            yy = Math.max(tmp.Assignment.name.height, tmp.Assignment.value.height) > 1 ? 2 * this.lineHeight/2 : y;
+            yy = Math.max(tmp.Assignment.name.height, tmp.Assignment.value.height) > 1 ? this.lineHeight : y;
          }
          this.drawTree(tmp.Assignment.name, x, yy);
          x += this.fontSize * tmp.Assignment.name.length;
-         var yy = Math.max(tmp.Assignment.name.height, tmp.Assignment.value.height) > 1 ? 2 * this.lineHeight/2 : y;
+         var yy = Math.max(tmp.Assignment.name.height, tmp.Assignment.value.height) > 1 ? this.lineHeight : y;
          this.c.fillText('=', x, yy);
          x += this.fontSize;
          this.drawTree(tmp.Assignment.value, x, y);
       } else if (tmp.hasOwnProperty('Binary')) {
-         var t = x;
          if (tmp.Binary.operator == '/') {
-            this.drawTree(tmp.Binary.left, x, y);
-            this.c.moveTo(t, y + this.lineHeight - this.lineHeight/2 -2 + 0.5);
-            var w = Math.max(tmp.Binary.left.length*this.fontSize, tmp.Binary.right.length*this.fontSize) + t;
+            var left  = tmp.Binary.left
+              , right = tmp.Binary.right;
+
+            var xx = x;
+            if (right.length > left.length) {
+               xx = x + (right.length - left.length) * this.fontSize / 2;
+            }
+
+            // Draw the left part
+            this.drawTree(left, xx, y);
+
+            // Draw the line
+            this.c.moveTo(x, y + this.lineHeight - this.lineHeight/2 -2 + 0.5);
+            var w = Math.max(left.length, right.length) * this.fontSize + x;
             this.c.lineTo(w, y + this.lineHeight - this.lineHeight/2 -2 + 0.5);
             this.c.stroke();
-            x = t;
             y += this.lineHeight;
-            this.drawTree(tmp.Binary.right, x, y);
+
+            var xx = x;
+            if (right.length < left.length) {
+               xx = x + (left.length - right.length) * this.fontSize / 2;
+            }
+            // Draw the right part
+            this.drawTree(right, xx, y);
          } else {
             var yy = y;
             if (tmp.Binary.right.height > tmp.Binary.left.height && tmp.Binary.left.height <= 1) {
@@ -100,7 +115,7 @@ var Math5 = {
             }
             var yyy = y;
             if (tmp.Binary.right.height > 1 || tmp.Binary.left.height > 1) {
-               yyy = Math.max(tmp.Binary.left.height, tmp.Binary.right.height) > 1 ? 2 * this.lineHeight / 2 : 1 * this.lineHeight/2;
+               yyy = Math.max(tmp.Binary.left.height, tmp.Binary.right.height) > 1 ? this.lineHeight : 1 * this.lineHeight/2;
                yyy = y + yyy/2;
             }
             this.drawTree(tmp.Binary.left, x, yy);
