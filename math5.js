@@ -1,6 +1,7 @@
 var Lexer = function (text) {
    this.text = text;
    this.tokens = this.getTokens(this.text);
+   console.log('Tokens', this.tokens);
    this.idx = 0;
 };
 
@@ -52,11 +53,11 @@ var Math5 = {
       var c = canvas.getContext('2d');
       this.c = c;
       c.save();
-      c.textBaseline = 'top';
+      c.textBaseline = 'middle';
       c.textAlign = 'left';
       c.font = this.fontSize + 'px courier new';
 
-      this.drawTree(tree, 0);
+      this.drawTree(tree, this.lineHeight/2);
 
       c.strokeRect(0, 0, canvas.width, canvas.height);
       c.restore();
@@ -70,6 +71,7 @@ var Math5 = {
       var tmp = tree;
       if (tmp.hasOwnProperty('Assignment')) {
          this.drawTree(tmp.Assignment.name, y);
+         //var yy = Math.max(tmp.Assignment.name.height, tmp.Assignment.value.height) * this.lineHeight / 2;
          this.c.fillText('=', this.px, y);
          this.px += this.fontSize;
          this.drawTree(tmp.Assignment.value, y);
@@ -77,10 +79,9 @@ var Math5 = {
          var t = this.px;
          this.drawTree(tmp.Binary.left, y);
          if (tmp.Binary.operator == '/') {
-            this.c.moveTo(t, y + this.lineHeight);
+            this.c.moveTo(t, y + this.lineHeight - this.lineHeight/2 + 0.5);
             var w = Math.max(tmp.Binary.left.length*this.fontSize, tmp.Binary.right.length*this.fontSize) + t;
-            console.log(w, t);
-            this.c.lineTo(w, y + this.lineHeight);
+            this.c.lineTo(w, y + this.lineHeight - this.lineHeight/2 + 0.5);
             this.c.stroke();
             this.px = t;
            y += this.lineHeight;
@@ -164,7 +165,6 @@ var Math5 = {
       if (token == '+' || token == '-') {
          token = this.lexer.next();
          right = this.parseAdditive();
-         console.log(left, left.length, right, right.length);
          return { Binary: { operator: token, left: left, right: right }, length: left.length + right.length + 1, height: Math.max(left.height, right.height) };
       }
       return left;
