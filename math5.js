@@ -59,6 +59,7 @@ var Math5 = {
 
       this.drawTree(tree, this.lineHeight/2);
 
+      c.strokeStyle = '#ccc';
       c.strokeRect(0, 0, canvas.width, canvas.height);
       c.restore();
 
@@ -70,8 +71,12 @@ var Math5 = {
    drawTree: function (tree, y) {
       var tmp = tree;
       if (tmp.hasOwnProperty('Assignment')) {
-         this.drawTree(tmp.Assignment.name, y);
-         var yy = Math.max(tmp.Assignment.name.height, tmp.Assignment.value.height) > 1 ? 2 * this.lineHeight / 2 : 1 * this.lineHeight/2;
+         var yy = y;
+         if (tmp.Assignment.name.height == 1) {
+            yy = Math.max(tmp.Assignment.name.height, tmp.Assignment.value.height) > 1 ? 2 * this.lineHeight/2 : y;
+         }
+         this.drawTree(tmp.Assignment.name, yy);
+         var yy = Math.max(tmp.Assignment.name.height, tmp.Assignment.value.height) > 1 ? 2 * this.lineHeight/2 : y;
          this.c.fillText('=', this.px, yy);
          this.px += this.fontSize;
          this.drawTree(tmp.Assignment.value, y);
