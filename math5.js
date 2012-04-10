@@ -138,24 +138,6 @@ var Math5 = {
    },
 
 
-   drawExp: function (a, b) {
-      var c = this.c;
-      c.save();
-      c.fillText(a, this.px, 10);
-      c.font = (this.fontSize - 3) + 'px courier new';
-      c.fillText(b, this.px + 9, 8);
-      c.fill();
-      c.restore();
-   },
-   drawMin: function (a, b) {
-      var c = this.c;
-      c.save();
-      c.fillText(a + ' - ' + b, this.px, 25);
-      c.fill();
-      c.restore();
-   },
-
-
    /**
     *
     */
