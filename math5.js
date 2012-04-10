@@ -71,25 +71,42 @@ var Math5 = {
       var tmp = tree;
       if (tmp.hasOwnProperty('Assignment')) {
          this.drawTree(tmp.Assignment.name, y);
-         //var yy = Math.max(tmp.Assignment.name.height, tmp.Assignment.value.height) * this.lineHeight / 2;
-         this.c.fillText('=', this.px, y);
+         var yy = Math.max(tmp.Assignment.name.height, tmp.Assignment.value.height) > 1 ? 2 * this.lineHeight / 2 : 1 * this.lineHeight/2;
+         this.c.fillText('=', this.px, yy);
          this.px += this.fontSize;
          this.drawTree(tmp.Assignment.value, y);
       } else if (tmp.hasOwnProperty('Binary')) {
          var t = this.px;
-         this.drawTree(tmp.Binary.left, y);
          if (tmp.Binary.operator == '/') {
-            this.c.moveTo(t, y + this.lineHeight - this.lineHeight/2 + 0.5);
+            this.drawTree(tmp.Binary.left, y);
+            this.c.moveTo(t, y + this.lineHeight - this.lineHeight/2 -2 + 0.5);
             var w = Math.max(tmp.Binary.left.length*this.fontSize, tmp.Binary.right.length*this.fontSize) + t;
-            this.c.lineTo(w, y + this.lineHeight - this.lineHeight/2 + 0.5);
+            this.c.lineTo(w, y + this.lineHeight - this.lineHeight/2 -2 + 0.5);
             this.c.stroke();
             this.px = t;
-           y += this.lineHeight;
+            y += this.lineHeight;
+            this.drawTree(tmp.Binary.right, y);
          } else {
-            this.c.fillText(tmp.Binary.operator, this.px, y);
+            var yy = y;
+            if (tmp.Binary.right.height > tmp.Binary.left.height) {
+               yy = Math.max(tmp.Binary.left.height, tmp.Binary.right.height) > 1 ? 2 * this.lineHeight / 2 : 1 * this.lineHeight/2;
+               yy = y + yy/2;
+            }
+            var yyy = y;
+            if (tmp.Binary.right.height > 1 || tmp.Binary.left.height > 1) {
+               yyy = Math.max(tmp.Binary.left.height, tmp.Binary.right.height) > 1 ? 2 * this.lineHeight / 2 : 1 * this.lineHeight/2;
+               yyy = y + yyy/2;
+            }
+            this.drawTree(tmp.Binary.left, yy);
+            this.c.fillText(tmp.Binary.operator, this.px, yyy);
             this.px += this.fontSize;
+            yy = y;
+            if (tmp.Binary.right.height < tmp.Binary.left.height) {
+               yy = Math.max(tmp.Binary.left.height, tmp.Binary.right.height) > 1 ? 2 * this.lineHeight / 2 : 1 * this.lineHeight/2;
+               yy = y + yy/2;
+            }
+            this.drawTree(tmp.Binary.right, yy);
          }
-         this.drawTree(tmp.Binary.right, y);
       } else if (tmp.hasOwnProperty('Unary')) {
          this.c.fillText(tmp.Unary.operator, this.px, y);
          this.px += this.fontSize;
@@ -101,10 +118,14 @@ var Math5 = {
          this.c.fillText(tmp.Identifier, this.px, y);
          this.px += this.fontSize;
       } else if (tmp.hasOwnProperty('Expression')) {
-         this.c.fillText('(', this.px, y);
+         var yy = y;
+         if (tmp.Expression.height > 1) {
+            yy = y + ((tmp.Expression.height-1) * this.lineHeight) / 2
+         }
+         this.c.fillText('(', this.px, yy);
          this.px += this.fontSize;
          this.drawTree(tmp.Expression, y);
-         this.c.fillText(')', this.px, y);
+         this.c.fillText(')', this.px, yy);
          this.px += this.fontSize;
       } else {
          console.log('ERR', tmp);
