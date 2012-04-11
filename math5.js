@@ -29,7 +29,12 @@ var Math5 = {};
 Math5.Lexer = function (text) {
    this.text = text;
    this.tokens = this.getTokens(this.text);
-   console.log('Tokens', this.tokens);
+   if (true) {
+      console.log('Tokens:');
+      for (var i=0; i<this.tokens.length; i++) {
+         console.log(this.tokens[i].type, this.tokens[i].value);
+      }
+   }
    this.idx = 0;
 };
 
@@ -42,7 +47,15 @@ Math5.Lexer.prototype.getTokens = function (text) {
    var token;
    var tokens = [];
    while (token = rgx.exec(text)) {
-      tokens.push(token[1]);
+      var obj = { value: token[1] };
+      if (!isNaN(token[1])) {
+         obj.type = 'Number';
+      } else if ('+-*/()^%=;,'.indexOf(token[1]) >= 0) {
+         obj.type = 'Operator';
+      } else {
+         obj.type = 'Identifier';
+      }
+      tokens.push(obj);
    }
    return tokens;
 };
@@ -51,13 +64,13 @@ Math5.Lexer.prototype.getTokens = function (text) {
 /**
  *
  */
-Math5.Lexer.prototype.peek = function () { return this.tokens[this.idx]; };
+Math5.Lexer.prototype.peek = function () { return this.tokens[this.idx] || {}; };
 
 
 /**
  *
  */
-Math5.Lexer.prototype.next = function () { return this.tokens[this.idx++]; };
+Math5.Lexer.prototype.next = function () { return this.tokens[this.idx++] || {}; };
 
 
 /**
@@ -210,6 +223,19 @@ Math5.drawTree = function (tree, x, y, p) {
       }
 
 
+   } else if (tree.hasOwnProperty('FunctionCall')) {
+      this.c.beginPath();
+      this.c.moveTo(x, y + (tree.height - 1) * this.lineHeight);
+      this.c.lineTo(x + this.fontSize/2, y + (tree.height - 1) * this.lineHeight + this.lineHeight/2 - 2);
+      this.c.lineTo(x + this.fontSize, y - this.lineHeight/2 +1.5);
+      this.c.lineTo(x + this.fontSize + tree.FunctionCall.args[0].width*this.fontSize-1, y - this.lineHeight/2 + 1.5);
+      this.c.lineTo(x + this.fontSize + tree.FunctionCall.args[0].width*this.fontSize-1, y - this.lineHeight/2 + 5.5);
+      this.c.stroke();
+
+      x += (1) * this.fontSize;
+      this.drawTree(tree.FunctionCall.args[0], x, y);
+
+
    } else {
       console.log('ERR', tree);
    }
@@ -235,7 +261,7 @@ Math5.parseAssignment = function () {
    expr = this.parseAdditive();
    if (expr) {
       token = this.lexer.peek();
-      if (token == '=') {
+      if (token.value == '=') {
          this.lexer.next();
          right = this.parseAssignment();
          width = expr.width + right.width + 1;
@@ -254,12 +280,12 @@ Math5.parseAdditive = function () {
    var token, left, right, width, height;
    left = this.parseMultiplicative();
    token = this.lexer.peek();
-   if (token == '+' || token == '-' || token == '+-') {
+   if (token.value == '+' || token.value == '-' || token.value == '+-') {
       token = this.lexer.next();
       right = this.parseAdditive();
       width = left.width + right.width + 1;
       height = Math.max(left.height, right.height);
-      return { Binary: { operator: token, left: left, right: right }, width: width, height: height };
+      return { Binary: { operator: token.value, left: left, right: right }, width: width, height: height };
    }
    return left;
 };
@@ -272,13 +298,13 @@ Math5.parseMultiplicative = function (p) {
    var token, left, right;
    left = this.parseUnary(p);
    token = this.lexer.peek();
-   if (token == '*' || token == '/') {
-      if (token != '/' && left.hasOwnProperty('Expression') && p) {
+   if (token.value == '*' || token.value == '/') {
+      if (token.value != '/' && left.hasOwnProperty('Expression') && p) {
          left.useless = false;
          left.width += 2;
       }
       token = this.lexer.next();
-      if (token == '/') {
+      if (token.value == '/') {
          if (left.hasOwnProperty('Expression') && !left.useless) {
             left.useless = true;
             left.width -= 2;
@@ -288,14 +314,14 @@ Math5.parseMultiplicative = function (p) {
          right = this.parseMultiplicative();
       }
       var width, height;
-      if (token == '*') {
+      if (token.value == '*') {
          width = left.width + right.width + 1;
          height = Math.max(left.height, right.height);
       } else {
          width = Math.max(left.width, right.width);
          height = Math.max(left.height, right.height) + 1;
       }
-      return { Binary: { operator: token, left: left, right: right }, width: width, height: height };
+      return { Binary: { operator: token.value, left: left, right: right }, width: width, height: height };
    }
    return left;
 };
@@ -307,10 +333,10 @@ Math5.parseMultiplicative = function (p) {
 Math5.parseUnary = function (p) {
    var token, expr;
    token = this.lexer.peek();
-   if (token == '-' || token == '+') {
+   if (token.value == '-' || token.value == '+') {
       token = this.lexer.next();
       expr = this.parseUnary();
-      return { Unary: { operator: token, expression: expr }, width: expr.width + 1, height: expr.height };
+      return { Unary: { operator: token.value, expression: expr }, width: expr.width + 1, height: expr.height };
    }
    return this.parsePrimary(p);
 };
@@ -322,20 +348,80 @@ Math5.parseUnary = function (p) {
 Math5.parsePrimary = function (p) {
    var token, expr;
    token = this.lexer.peek();
-   if (!isNaN(parseInt(token))) {
-      this.lexer.next();
-      return { Number: token, width: token.length, height: 1 };
-   } else if (typeof token == 'string') {
-      this.lexer.next();
-      if (token == '(') {
-         expr = this.parseAssignment();
-         token = this.lexer.next();
-         if (token != ')') { console.log('ERROR'); }
-         return { Expression: expr, width: expr.width + (p ? 0 : 2), height: expr.height, useless: (p ? true : false) };
+
+   if (token.type == 'Identifier') {
+      token = this.lexer.next();
+      if (this.lexer.peek().value == '(') {
+         return this.parseFunctionCall(token.value);
+      } else {
+         return { Identifier: token.value, width: token.value.length, height: 1 };
       }
-      return { Identifier: token, width: token.length, height: 1 };
+   }
+
+   if (token.type == 'Number') {
+      this.lexer.next();
+      return { Number: token.value, width: token.value.length, height: 1 };
+   }
+
+   if (token.value == '(') {
+      this.lexer.next();
+      expr = this.parseAssignment();
+      token = this.lexer.next();
+      if (token.value != ')') { console.log('ERROR'); }
+      return { Expression: expr, width: expr.width + (p ? 0 : 2), height: expr.height, useless: (p ? true : false) };
    }
    return { Weird: token };
+};
+
+
+/**
+ *
+ */
+Math5.parseArgumentList = function () {
+   var token, expr, args = [];
+
+   while (true) {
+      expr = this.parseAssignment();
+      if (typeof expr === 'undefined') { break; }
+      args.push(expr);
+      token = this.lexer.peek();
+      if (token.value != ',') { break; }
+      this.lexer.next();
+   }
+   return args;
+};
+
+
+/**
+ *
+ */
+Math5.parseFunctionCall = function (name) {
+   var token, args = [], width, height;
+
+   token = this.lexer.next();
+   if (token.value != '(') { console.log('ERROR1'); }
+
+   token = this.lexer.peek();
+   if (token.value != ')') {
+      args = this.parseArgumentList();
+   }
+   token = this.lexer.next();
+   if (token.value != ')') { console.log('ERROR2'); }
+
+   width = name.length + args[0].width + 2;
+
+   if (name == 'sqrt') {
+      width = 1 + args[0].width;
+   }
+
+   height = 0;
+   for (var i=0; i<args.length; i++) {
+      if (args[i].height > height) {
+         height = args[i].height;
+      }
+   }
+
+   return { FunctionCall: { name: name, args: args }, width: width, height: height };
 };
 
 
