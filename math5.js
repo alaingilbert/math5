@@ -98,8 +98,12 @@ Math5.parse = function (el) {
 
    // Create the canvas element
    var canvas = document.createElement('canvas');
+   // TODO: remove
+   this.fontSize = 9;
    canvas.width = tree.width * this.fontSize;
    canvas.height = tree.height * this.lineHeight;
+   // TODO: remove
+   this.fontSize = 15;
 
    var c = canvas.getContext('2d');
    this.c = c;
@@ -107,6 +111,9 @@ Math5.parse = function (el) {
    c.textBaseline = 'middle';
    c.textAlign = 'left';
    c.font = this.fontSize + 'px courier new';
+
+   // TODO: remove
+   this.fontSize = 9;
 
    //console.log(c.measureText('t').width, this.fontSize);
 
@@ -133,8 +140,8 @@ Math5.drawTree = function (tree, x, y, p) {
       this.drawTree(tree.Assignment.name, x, yy);
       x += this.fontSize * tree.Assignment.name.width;
       var yy = Math.max(tree.Assignment.name.height, tree.Assignment.value.height) > 1 ? this.lineHeight : y;
-      this.c.fillText('=', x, yy);
-      x += this.fontSize;
+      this.c.fillText('=', x + this.fontSize/2, yy);
+      x += this.fontSize * 2;
       this.drawTree(tree.Assignment.value, x, y);
 
 
@@ -180,12 +187,12 @@ Math5.drawTree = function (tree, x, y, p) {
          this.drawTree(tree.Binary.left, x, yy);
          x += this.fontSize * tree.Binary.left.width;
          if (tree.Binary.operator == '+-') {
-            this.c.fillText('+', x, yyy-1);
-            this.c.fillText('-', x, yyy+4);
+            this.c.fillText('+', x + this.fontSize/2, yyy-1);
+            this.c.fillText('-', x + this.fontSize/2, yyy+4);
          } else {
-            this.c.fillText(tree.Binary.operator, x, yyy);
+            this.c.fillText(tree.Binary.operator, x + this.fontSize/2, yyy);
          }
-         x += this.fontSize;
+         x += this.fontSize * 2;
          yy = y;
          if (tree.Binary.right.height < tree.Binary.left.height && tree.Binary.right.height <= 1) {
             yy = this.lineHeight;
@@ -230,8 +237,8 @@ Math5.drawTree = function (tree, x, y, p) {
       this.c.moveTo(x, y + (tree.height - 1) * this.lineHeight);
       this.c.lineTo(x + this.fontSize/2, y + (tree.height - 1) * this.lineHeight + this.lineHeight/2 - 2);
       this.c.lineTo(x + this.fontSize - 3, y - this.lineHeight/2 +1.5);
-      this.c.lineTo(x + this.fontSize + tree.FunctionCall.args[0].width*this.fontSize-1, y - this.lineHeight/2 + 1.5);
-      this.c.lineTo(x + this.fontSize + tree.FunctionCall.args[0].width*this.fontSize-1, y - this.lineHeight/2 + 5.5);
+      this.c.lineTo(x + this.fontSize + tree.FunctionCall.args[0].width*this.fontSize-1 + this.fontSize, y - this.lineHeight/2 + 1.5);
+      this.c.lineTo(x + this.fontSize + tree.FunctionCall.args[0].width*this.fontSize-1 + this.fontSize, y - this.lineHeight/2 + 5.5);
       this.c.stroke();
 
       x += (1) * this.fontSize;
@@ -266,7 +273,7 @@ Math5.parseAssignment = function () {
       if (token.value == '=') {
          this.lexer.next();
          right = this.parseAssignment();
-         width = expr.width + right.width + 1;
+         width = expr.width + right.width + 2;
          height = Math.max(expr.height, right.height);
          return { Assignment: { name: expr, value: right }, width: width, height: height };
       }
@@ -285,7 +292,7 @@ Math5.parseAdditive = function () {
    if (token.value == '+' || token.value == '-' || token.value == '+-') {
       token = this.lexer.next();
       right = this.parseAdditive();
-      width = left.width + right.width + 1;
+      width = left.width + right.width + 2;
       height = Math.max(left.height, right.height);
       return { Binary: { operator: token.value, left: left, right: right }, width: width, height: height };
    }
@@ -317,7 +324,7 @@ Math5.parseMultiplicative = function (p) {
       }
       var width, height;
       if (token.value == '*') {
-         width = left.width + right.width + 1;
+         width = left.width + right.width + 2;
          height = Math.max(left.height, right.height);
       } else {
          width = Math.max(left.width, right.width);
@@ -413,7 +420,7 @@ Math5.parseFunctionCall = function (name) {
    width = name.length + args[0].width + 2;
 
    if (name == 'sqrt') {
-      width = 1 + args[0].width;
+      width = 1 + args[0].width + 1;
    }
 
    height = 0;
