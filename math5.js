@@ -108,6 +108,8 @@ Math5.parse = function (el) {
    c.textAlign = 'left';
    c.font = this.fontSize + 'px courier new';
 
+   //console.log(c.measureText('t').width, this.fontSize);
+
    this.drawTree(tree, 0, this.lineHeight/2);
 
    c.strokeStyle = '#ccc';
