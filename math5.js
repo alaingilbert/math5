@@ -164,7 +164,12 @@ Math5.drawTree = function (tree, x, y, p) {
          }
          this.drawTree(tree.Binary.left, x, yy);
          x += this.fontSize * tree.Binary.left.width;
-         this.c.fillText(tree.Binary.operator, x, yyy);
+         if (tree.Binary.operator == '+-') {
+            this.c.fillText('+', x, yyy-1);
+            this.c.fillText('-', x, yyy+4);
+         } else {
+            this.c.fillText(tree.Binary.operator, x, yyy);
+         }
          x += this.fontSize;
          yy = y;
          if (tree.Binary.right.height < tree.Binary.left.height && tree.Binary.right.height <= 1) {
@@ -249,7 +254,7 @@ Math5.parseAdditive = function () {
    var token, left, right, width, height;
    left = this.parseMultiplicative();
    token = this.lexer.peek();
-   if (token == '+' || token == '-') {
+   if (token == '+' || token == '-' || token == '+-') {
       token = this.lexer.next();
       right = this.parseAdditive();
       width = left.width + right.width + 1;
