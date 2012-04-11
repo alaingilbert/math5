@@ -226,14 +226,16 @@ Math5.parseExpression = function (text) {
  *
  */
 Math5.parseAssignment = function () {
-   var token, expr, right;
+   var token, expr, right, width, height;
    expr = this.parseAdditive();
    if (expr) {
       token = this.lexer.peek();
       if (token == '=') {
          this.lexer.next();
          right = this.parseAssignment();
-         return { Assignment: { name: expr, value: right }, width: expr.width + right.width + 1, height: Math.max(expr.height, right.height) };
+         width = expr.width + right.width + 1;
+         height = Math.max(expr.height, right.height);
+         return { Assignment: { name: expr, value: right }, width: width, height: height };
       }
    }
    return expr;
@@ -244,13 +246,15 @@ Math5.parseAssignment = function () {
  *
  */
 Math5.parseAdditive = function () {
-   var token, left, right;
+   var token, left, right, width, height;
    left = this.parseMultiplicative();
    token = this.lexer.peek();
    if (token == '+' || token == '-') {
       token = this.lexer.next();
       right = this.parseAdditive();
-      return { Binary: { operator: token, left: left, right: right }, width: left.width + right.width + 1, height: Math.max(left.height, right.height) };
+      width = left.width + right.width + 1;
+      height = Math.max(left.height, right.height);
+      return { Binary: { operator: token, left: left, right: right }, width: width, height: height };
    }
    return left;
 };
@@ -264,6 +268,10 @@ Math5.parseMultiplicative = function (p) {
    left = this.parseUnary(p);
    token = this.lexer.peek();
    if (token == '*' || token == '/') {
+      if (token != '/' && left.hasOwnProperty('Expression') && p) {
+         left.useless = false;
+         left.width += 2;
+      }
       token = this.lexer.next();
       if (token == '/') {
          if (left.hasOwnProperty('Expression') && !left.useless) {
