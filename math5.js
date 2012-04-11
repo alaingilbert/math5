@@ -173,10 +173,10 @@ Math5.drawTree = function (tree, x, y, p) {
 
 
       } else if (tree.Binary.operator == '^') {
-         this.drawTree(tree.Binary.left, x, y);
+         this.drawTree(tree.Binary.left, x, y, true);
          x += this.fontSize;
          y -= 5;
-         this.drawTree(tree.Binary.right, x, y);
+         this.drawTree(tree.Binary.right, x, y, true);
 
 
       } else {
@@ -311,9 +311,9 @@ Math5.parseAdditive = function () {
  */
 Math5.parseMultiplicative = function (p) {
    var token, left, right;
-   left = this.parseUnary(p);
+   left = this.parseExponent(p);
    token = this.lexer.peek();
-   if (token.value == '*' || token.value == '/' || token.value == '^') {
+   if (token.value == '*' || token.value == '/') {
       if (token.value != '/' && left.hasOwnProperty('Expression') && p) {
          left.useless = false;
          left.width += 2;
@@ -335,10 +335,29 @@ Math5.parseMultiplicative = function (p) {
       } else if (token.value == '/') {
          width = Math.max(left.width, right.width);
          height = Math.max(left.height, right.height) + 1;
-      } else if (token.value == '^') {
-         width = left.width + right.width;
-         height = Math.max(left.height, right.height);
       }
+      return { Binary: { operator: token.value, left: left, right: right }, width: width, height: height };
+   }
+   return left;
+};
+
+
+/**
+ *
+ */
+Math5.parseExponent = function (p) {
+   var token, left, right, width, height;
+   left = this.parseUnary(p);
+   token = this.lexer.peek();
+   if (token.value == '^') {
+      if (left.hasOwnProperty('Expression')) {
+         left.useless = true;
+         left.width -= 2;
+      }
+      token = this.lexer.next();
+      right = this.parseExponent();
+      width = left.width + right.width;
+      height = Math.max(left.height, right.height);
       return { Binary: { operator: token.value, left: left, right: right }, width: width, height: height };
    }
    return left;
