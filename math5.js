@@ -88,7 +88,7 @@ Math5.init = function () {
  *
  */
 Math5.parse = function (el) {
-   var text = el.innerText;
+   var text = el.textContent;
    var tree = this.parseExpression(text);
    this.fontSize = 20;
    this.lineHeight = 25;
@@ -263,7 +263,7 @@ Math5.drawTree = function (tree, x, y, p) {
 Math5.parseExpression = function (text) {
    this.lexer = new this.Lexer(text);
    var expr = this.parseAssignment();
-   //console.log('res', expr, expr.width);
+   console.log('res', expr, expr.width);
    return expr;
 };
 
