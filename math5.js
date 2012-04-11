@@ -30,9 +30,9 @@ Math5.Lexer = function (text) {
    this.text = text;
    this.tokens = this.getTokens(this.text);
    if (true) {
-      console.log('Tokens:');
+      //console.log('Tokens:');
       for (var i=0; i<this.tokens.length; i++) {
-         console.log(this.tokens[i].type, this.tokens[i].value);
+         //console.log(this.tokens[i].type, this.tokens[i].value);
       }
    }
    this.idx = 0;
@@ -89,9 +89,8 @@ Math5.init = function () {
  */
 Math5.parse = function (el) {
    var text = el.innerText;
-   console.log(text);
    var tree = this.parseExpression(text);
-   this.fontSize = 15;
+   this.fontSize = 20;
    this.lineHeight = 25;
    this.px = 0;
    this.py = 0;
@@ -99,11 +98,11 @@ Math5.parse = function (el) {
    // Create the canvas element
    var canvas = document.createElement('canvas');
    // TODO: remove
-   this.fontSize = 9;
+   this.fontSize = 12;
    canvas.width = tree.width * this.fontSize;
    canvas.height = tree.height * this.lineHeight;
    // TODO: remove
-   this.fontSize = 15;
+   this.fontSize = 20;
 
    var c = canvas.getContext('2d');
    this.c = c;
@@ -113,9 +112,9 @@ Math5.parse = function (el) {
    c.font = this.fontSize + 'px courier new';
 
    // TODO: remove
-   this.fontSize = 9;
+   this.fontSize = 12;
 
-   //console.log(c.measureText('t').width, this.fontSize);
+   console.log(c.measureText('t').width, this.fontSize);
 
    this.drawTree(tree, 0, this.lineHeight/2);
 
@@ -195,7 +194,7 @@ Math5.drawTree = function (tree, x, y, p) {
          x += this.fontSize * tree.Binary.left.width;
          if (tree.Binary.operator == '+-') {
             this.c.fillText('+', x + this.fontSize/2, yyy-1);
-            this.c.fillText('-', x + this.fontSize/2, yyy+4);
+            this.c.fillText('-', x + this.fontSize/2, yyy+5);
          } else {
             this.c.fillText(tree.Binary.operator, x + this.fontSize/2, yyy);
          }
@@ -264,7 +263,7 @@ Math5.drawTree = function (tree, x, y, p) {
 Math5.parseExpression = function (text) {
    this.lexer = new this.Lexer(text);
    var expr = this.parseAssignment();
-   console.log('res', expr, expr.width);
+   //console.log('res', expr, expr.width);
    return expr;
 };
 
