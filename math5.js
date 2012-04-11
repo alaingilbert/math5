@@ -30,9 +30,9 @@ Math5.Lexer = function (text) {
    this.text = text;
    this.tokens = this.getTokens(this.text);
    if (true) {
-      console.log('Tokens:');
+      //console.log('Tokens:');
       for (var i=0; i<this.tokens.length; i++) {
-         console.log(this.tokens[i].type, this.tokens[i].value);
+         //console.log(this.tokens[i].type, this.tokens[i].value);
       }
    }
    this.idx = 0;
@@ -89,21 +89,20 @@ Math5.init = function () {
  */
 Math5.parse = function (el) {
    var text = el.innerText;
-   console.log(text);
    var tree = this.parseExpression(text);
-   this.fontSize = 15;
-   this.lineHeight = 20;
+   this.fontSize = 20;
+   this.lineHeight = 25;
    this.px = 0;
    this.py = 0;
 
    // Create the canvas element
    var canvas = document.createElement('canvas');
    // TODO: remove
-   this.fontSize = 9;
+   this.fontSize = 12;
    canvas.width = tree.width * this.fontSize;
    canvas.height = tree.height * this.lineHeight;
    // TODO: remove
-   this.fontSize = 15;
+   this.fontSize = 20;
 
    var c = canvas.getContext('2d');
    this.c = c;
@@ -113,9 +112,9 @@ Math5.parse = function (el) {
    c.font = this.fontSize + 'px courier new';
 
    // TODO: remove
-   this.fontSize = 9;
+   this.fontSize = 12;
 
-   //console.log(c.measureText('t').width, this.fontSize);
+   console.log(c.measureText('t').width, this.fontSize);
 
    this.drawTree(tree, 0, this.lineHeight/2);
 
@@ -173,6 +172,13 @@ Math5.drawTree = function (tree, x, y, p) {
          this.drawTree(right, xx, y, true);
 
 
+      } else if (tree.Binary.operator == '^') {
+         this.drawTree(tree.Binary.left, x, y);
+         x += this.fontSize;
+         y -= 5;
+         this.drawTree(tree.Binary.right, x, y);
+
+
       } else {
          var yy = y;
          if (tree.Binary.right.height > tree.Binary.left.height && tree.Binary.left.height <= 1) {
@@ -188,7 +194,7 @@ Math5.drawTree = function (tree, x, y, p) {
          x += this.fontSize * tree.Binary.left.width;
          if (tree.Binary.operator == '+-') {
             this.c.fillText('+', x + this.fontSize/2, yyy-1);
-            this.c.fillText('-', x + this.fontSize/2, yyy+4);
+            this.c.fillText('-', x + this.fontSize/2, yyy+5);
          } else {
             this.c.fillText(tree.Binary.operator, x + this.fontSize/2, yyy);
          }
@@ -235,10 +241,10 @@ Math5.drawTree = function (tree, x, y, p) {
    } else if (tree.hasOwnProperty('FunctionCall')) {
       this.c.beginPath();
       this.c.moveTo(x, y + (tree.height - 1) * this.lineHeight);
-      this.c.lineTo(x + this.fontSize/2, y + (tree.height - 1) * this.lineHeight + this.lineHeight/2 - 2);
-      this.c.lineTo(x + this.fontSize - 3, y - this.lineHeight/2 +1.5);
-      this.c.lineTo(x + this.fontSize + tree.FunctionCall.args[0].width*this.fontSize-1 + this.fontSize, y - this.lineHeight/2 + 1.5);
-      this.c.lineTo(x + this.fontSize + tree.FunctionCall.args[0].width*this.fontSize-1 + this.fontSize, y - this.lineHeight/2 + 5.5);
+      this.c.lineTo(x + Math.ceil(this.fontSize/2) + 0.5, y + (tree.height - 1) * this.lineHeight + this.lineHeight/2 - 5);
+      this.c.lineTo(x + Math.ceil(this.fontSize/2) + 0.5, y - this.lineHeight/2 +1.5);
+      this.c.lineTo(x + this.fontSize + tree.FunctionCall.args[0].width*this.fontSize-1.5 + this.fontSize, y - this.lineHeight/2 + 1.5);
+      this.c.lineTo(x + this.fontSize + tree.FunctionCall.args[0].width*this.fontSize-1.5 + this.fontSize, y - this.lineHeight/2 + 5.5);
       this.c.stroke();
 
       x += (1) * this.fontSize;
@@ -257,7 +263,7 @@ Math5.drawTree = function (tree, x, y, p) {
 Math5.parseExpression = function (text) {
    this.lexer = new this.Lexer(text);
    var expr = this.parseAssignment();
-   console.log('res', expr, expr.width);
+   //console.log('res', expr, expr.width);
    return expr;
 };
 
@@ -307,7 +313,7 @@ Math5.parseMultiplicative = function (p) {
    var token, left, right;
    left = this.parseUnary(p);
    token = this.lexer.peek();
-   if (token.value == '*' || token.value == '/') {
+   if (token.value == '*' || token.value == '/' || token.value == '^') {
       if (token.value != '/' && left.hasOwnProperty('Expression') && p) {
          left.useless = false;
          left.width += 2;
@@ -326,9 +332,12 @@ Math5.parseMultiplicative = function (p) {
       if (token.value == '*') {
          width = left.width + right.width + 2;
          height = Math.max(left.height, right.height);
-      } else {
+      } else if (token.value == '/') {
          width = Math.max(left.width, right.width);
          height = Math.max(left.height, right.height) + 1;
+      } else if (token.value == '^') {
+         width = left.width + right.width;
+         height = Math.max(left.height, right.height);
       }
       return { Binary: { operator: token.value, left: left, right: right }, width: width, height: height };
    }
