@@ -227,7 +227,7 @@ Math5.drawTree = function (tree, x, y, p) {
       this.c.beginPath();
       this.c.moveTo(x, y + (tree.height - 1) * this.lineHeight);
       this.c.lineTo(x + this.fontSize/2, y + (tree.height - 1) * this.lineHeight + this.lineHeight/2 - 2);
-      this.c.lineTo(x + this.fontSize, y - this.lineHeight/2 +1.5);
+      this.c.lineTo(x + this.fontSize - 3, y - this.lineHeight/2 +1.5);
       this.c.lineTo(x + this.fontSize + tree.FunctionCall.args[0].width*this.fontSize-1, y - this.lineHeight/2 + 1.5);
       this.c.lineTo(x + this.fontSize + tree.FunctionCall.args[0].width*this.fontSize-1, y - this.lineHeight/2 + 5.5);
       this.c.stroke();
