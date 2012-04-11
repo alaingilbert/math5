@@ -109,7 +109,7 @@ Math5.parse = function (el) {
 /**
  *
  */
-Math5.drawTree = function (tree, x, y) {
+Math5.drawTree = function (tree, x, y, p) {
    if (tree.hasOwnProperty('Assignment')) {
       var yy = y;
       if (tree.Assignment.name.height == 1) {
@@ -134,7 +134,7 @@ Math5.drawTree = function (tree, x, y) {
          }
 
          // Draw the left part
-         this.drawTree(left, xx, y);
+         this.drawTree(left, xx, y, true);
 
          // Draw the line
          this.c.moveTo(x, y + this.lineHeight - this.lineHeight/2 -2 + 0.5);
@@ -148,7 +148,7 @@ Math5.drawTree = function (tree, x, y) {
             xx = x + (left.width - right.width) * this.fontSize / 2;
          }
          // Draw the right part
-         this.drawTree(right, xx, y);
+         this.drawTree(right, xx, y, true);
 
 
       } else {
@@ -194,11 +194,15 @@ Math5.drawTree = function (tree, x, y) {
       if (tree.Expression.height > 1) {
          yy = y + (1 * this.lineHeight) / 2
       }
-      this.c.fillText('(', x, yy);
-      x += this.fontSize;
+      if (!p) {
+         this.c.fillText('(', x, yy);
+         x += this.fontSize;
+      }
       this.drawTree(tree.Expression, x, y);
       x += tree.Expression.width * this.fontSize;
-      this.c.fillText(')', x, yy);
+      if (!p) {
+         this.c.fillText(')', x, yy);
+      }
 
 
    } else {
@@ -255,13 +259,21 @@ Math5.parseAdditive = function () {
 /**
  *
  */
-Math5.parseMultiplicative = function () {
+Math5.parseMultiplicative = function (p) {
    var token, left, right;
-   left = this.parseUnary();
+   left = this.parseUnary(p);
    token = this.lexer.peek();
    if (token == '*' || token == '/') {
       token = this.lexer.next();
-      right = this.parseMultiplicative();
+      if (token == '/') {
+         if (left.hasOwnProperty('Expression') && !left.useless) {
+            left.useless = true;
+            left.width -= 2;
+         }
+         right = this.parseMultiplicative(true);
+      } else {
+         right = this.parseMultiplicative();
+      }
       var width, height;
       if (token == '*') {
          width = left.width + right.width + 1;
@@ -279,7 +291,7 @@ Math5.parseMultiplicative = function () {
 /**
  *
  */
-Math5.parseUnary = function () {
+Math5.parseUnary = function (p) {
    var token, expr;
    token = this.lexer.peek();
    if (token == '-' || token == '+') {
@@ -287,14 +299,14 @@ Math5.parseUnary = function () {
       expr = this.parseUnary();
       return { Unary: { operator: token, expression: expr }, width: expr.width + 1, height: expr.height };
    }
-   return this.parsePrimary();
+   return this.parsePrimary(p);
 };
 
 
 /**
  *
  */
-Math5.parsePrimary = function () {
+Math5.parsePrimary = function (p) {
    var token, expr;
    token = this.lexer.peek();
    if (!isNaN(parseInt(token))) {
@@ -306,7 +318,7 @@ Math5.parsePrimary = function () {
          expr = this.parseAssignment();
          token = this.lexer.next();
          if (token != ')') { console.log('ERROR'); }
-         return { Expression: expr, width: expr.width + 2, height: expr.height };
+         return { Expression: expr, width: expr.width + (p ? 0 : 2), height: expr.height, useless: (p ? true : false) };
       }
       return { Identifier: token, width: token.length, height: 1 };
    }
