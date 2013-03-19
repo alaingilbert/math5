@@ -35,21 +35,6 @@ class Drawer
       @drawFunctionCallNode node, x, y
 
 
-  drawFunctionCallNode: (node, x, y) ->
-    do @ctx.save
-    do @ctx.beginPath
-    @ctx.moveTo x, y + node.height - Math5.fontSize
-    @ctx.lineTo x + 10, y + node.height - Math5.fontSize/2
-    @ctx.lineTo x + 15, y - Math5.fontSize/2
-    @ctx.lineTo x + 20 + node.args[0].width, y - Math5.fontSize/2
-    @ctx.lineTo x + 20 + node.args[0].width, y
-    do @ctx.stroke
-    do @ctx.restore
-
-    x += Math5.fontSize
-    @draw node.args[0], x, y
-
-
   drawExpressionNode: (node, x, y) ->
     @draw node.expr, x, y
 
@@ -145,18 +130,34 @@ class Drawer
     (Math.max(left.height, right.height) - Math5.fontSize) / 2
 
 
+  drawFunctionCallNode: (node, x, y) ->
+    switch node.name
+      when 'sqrt' then @drawSquareRootNode node, x, y
+
+
+  drawSquareRootNode: (node, x, y) ->
+    do @ctx.save
+    do @ctx.beginPath
+    @ctx.moveTo x, y + node.height - Math5.fontSize
+    @ctx.lineTo x + 10, y + node.height - Math5.fontSize/2
+    @ctx.lineTo x + 15, y - Math5.fontSize/2
+    @ctx.lineTo x + 20 + node.args[0].width, y - Math5.fontSize/2
+    @ctx.lineTo x + 20 + node.args[0].width, y
+    do @ctx.stroke
+    do @ctx.restore
+
+    x += Math5.fontSize
+    @draw node.args[0], x, y
+
+
   drawIdentifierNode: (node, x, y) ->
     value = node.value
-    do @ctx.save
-    @ctx.fillText value, x, y
-    do @ctx.restore
+    @drawText value, x, y
 
 
   drawNumberNode: (node, x, y) ->
     value = node.value
-    do @ctx.save
-    @ctx.fillText value, x, y
-    do @ctx.restore
+    @drawText value, x, y
 
 
   drawText: (text, x, y) ->
