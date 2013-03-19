@@ -1,7 +1,6 @@
 class Lexer
-  constructor: (text) ->
-    @text = text
-    @tokens = @getTokens text
+  constructor: (@text) ->
+    @tokens = @getTokens @text
     @idx = 0
 
 

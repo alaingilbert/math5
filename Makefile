@@ -9,6 +9,7 @@ FILES = math5/lexer/lexer.coffee \
 				math5/parser/IdentifierNode.coffee \
 				math5/parser/NumberNode.coffee \
 				math5/parser/UnaryNode.coffee \
+				math5/parser/FunctionCallNode.coffee \
 				math5/parser/ExpressionNode.coffee \
 				math5/Drawer.coffee \
 				math5/math5.coffee \

@@ -64,6 +64,8 @@ class Parser
     switch token.type
       when 'Identifier'
         do @lexer.next
+        if @lexer.peek().value == '('
+          return @parseFunctionCall token.value
         return new IdentifierNode token.value
       when 'Number'
         do @lexer.next
@@ -77,10 +79,30 @@ class Parser
       return new ExpressionNode expr
 
 
+  parseFunctionCall: (name) ->
+    token = do @lexer.next
+    if token.value != '(' then console.log 'ERROR1'
+
+    token = do @lexer.peek
+    if token.value != ')'
+      args = do @parseArgumentList
+
+    token = do @lexer.next
+    if token.value != ')' then console.log 'ERROR2'
+
+    return new FunctionCallNode name, args
+
+
   parseArgumentList: ->
-
-
-  parseFunctioncall: ->
+    args = []
+    while true
+      expr = do @parseAssignment
+      if typeof expr is undefined then break
+      args.push expr
+      token = do @lexer.peek
+      if token.value != ',' then break
+      do @lexer.next
+    return args
 
 
   verify: ->

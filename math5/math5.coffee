@@ -10,8 +10,8 @@ class Math5
     @tree = @parser.getTree()
     console.log @tree
     @canvas = document.createElement 'canvas'
-    @canvas.width = @tree.width + 1
-    @canvas.height = @tree.height + 1
+    @canvas.width = @tree.width + 1 + 200
+    @canvas.height = @tree.height + 1 + 200
     @ctx = @canvas.getContext '2d'
     @drawer = new Drawer @tree, @ctx
     @mathElement.removeChild @mathElement.firstChild

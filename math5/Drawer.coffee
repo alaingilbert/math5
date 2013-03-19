@@ -15,7 +15,7 @@ class Drawer
     borderWidth = @tree.width
     borderHeight = @tree.height
     do @ctx.save
-    @ctx.strokeStyle = '#aaa'
+    @ctx.strokeStyle = '#ccc'
     @ctx.strokeRect 0.5, 0.5, borderWidth, borderHeight
     do @ctx.restore
 
@@ -31,6 +31,23 @@ class Drawer
       @drawNumberNode node, x, y
     else if node instanceof ExpressionNode
       @drawExpressionNode node, x, y
+    else if node instanceof FunctionCallNode
+      @drawFunctionCallNode node, x, y
+
+
+  drawFunctionCallNode: (node, x, y) ->
+    do @ctx.save
+    do @ctx.beginPath
+    @ctx.moveTo x, y + node.height - Math5.fontSize
+    @ctx.lineTo x + 10, y + node.height - Math5.fontSize/2
+    @ctx.lineTo x + 15, y - Math5.fontSize/2
+    @ctx.lineTo x + 20 + node.args[0].width, y - Math5.fontSize/2
+    @ctx.lineTo x + 20 + node.args[0].width, y
+    do @ctx.stroke
+    do @ctx.restore
+
+    x += Math5.fontSize
+    @draw node.args[0], x, y
 
 
   drawExpressionNode: (node, x, y) ->
@@ -62,12 +79,15 @@ class Drawer
     right = node.right
     if operator == '/'
       initialX = x
+      initialY = y
 
       x += @centerTop left, right
       @draw left, x, y
       x = initialX
 
+      y += left.height - Math5.lineHeight/2
       @drawDivisionBar left, right, x, y
+      y = initialY
 
       x += @centerBottom left, right
       y += left.height
@@ -89,10 +109,6 @@ class Drawer
 
 
   drawDivisionBar: (left, right, x, y) ->
-    initialY = y
-    y = y + Math5.fontSize / 2
-    if left.height > right.height
-      y += left.height - right.height
     y -= 0.5
     do @ctx.save
     @ctx.moveTo x, y
