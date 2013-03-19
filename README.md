@@ -8,4 +8,4 @@ It takes a linear math expression :
 
 and replace them by a `canvas` element with the expression pretty printed in it.
 
-![Screen shot 1](/alaingilbert/math5/raw/master/img.png)
+![Screen shot 1](https://raw.github.com/alaingilbert/math5/master/img.png)
