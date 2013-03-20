@@ -93,7 +93,10 @@ class Drawer
 
       x += left.width
       y += @centerVertical left, right
-      @drawText operator, x, y
+      if operator == '*'
+        @drawText '.', x, y-3
+      else
+        @drawText operator, x, y
       y = initialY
 
       x += 20
