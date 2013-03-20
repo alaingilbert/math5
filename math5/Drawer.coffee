@@ -23,6 +23,8 @@ class Drawer
   draw: (node, x, y) ->
     if node instanceof AssignmentNode
       @drawAssignmentNode node, x, y
+    else if node instanceof UnaryNode
+      @drawUnaryNode node, x, y
     else if node instanceof BinaryNode
       @drawBinaryNode node, x, y
     else if node instanceof IdentifierNode
@@ -56,6 +58,12 @@ class Drawer
     x += 20
     y += @centerVerticalRight name, value
     @draw value, x, y
+
+
+  drawUnaryNode: (node, x, y) ->
+    @drawText node.operator, x, y
+    x += Math5.fontSize
+    @draw node.expression, x, y
 
 
   drawBinaryNode: (node, x, y) ->

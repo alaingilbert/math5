@@ -54,7 +54,8 @@ class Parser
     token = do @lexer.peek
     switch token.value
       when '-', '+'
-        expr = do @lexer.next
+        do @lexer.next
+        expr = do @parseUnary
         return new UnaryNode token.value, expr
     return do @parsePrimary
 
