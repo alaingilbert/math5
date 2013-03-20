@@ -123,13 +123,13 @@ class Drawer
 
 
   centerVerticalLeft: (left, right) ->
-    if left.height < right.height
+    if left.height < right.height
       return (right.height - left.height) / 2
     return 0
 
 
   centerVerticalRight: (left, right) ->
-    if left.height > right.height
+    if left.height > right.height
       return (left.height - right.height) / 2
     return 0
 
