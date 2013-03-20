@@ -1,6 +1,5 @@
 class Parser
-  constructor: (lexer) ->
-    @lexer = lexer
+  constructor: (@lexer) ->
 
 
   getTree: ->
