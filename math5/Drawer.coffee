@@ -1,14 +1,14 @@
 class Drawer
   constructor: (@tree, @ctx) ->
-    @x = 0
-    @y = Math5.lineHeight / 2
     @ctx.textBaseline = 'middle'
     @ctx.textAlign = 'left'
     @ctx.font = '20px courier new'
     @ctx.fillStyle = '#000'
     @ctx.strokeStyle = '#000'
     do @drawBorder
-    @draw @tree, @x, @y
+    x = 0
+    y = Math5.lineHeight / 2
+    @draw @tree, x, y
 
 
   drawBorder: ->
